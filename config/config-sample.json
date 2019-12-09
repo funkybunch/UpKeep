@@ -1,0 +1,39 @@
+{
+  "categories": [
+    {
+      "name": "Search Engines",
+      "services": [
+        {
+          "name": "Google",
+          "hostname": "google.com",
+          "action": "View"
+        },
+        {
+          "name": "Bing",
+          "hostname": "bing.com",
+          "action": "View"
+        },
+        {
+          "name": "Duck Duck Go",
+          "hostname": "duckduckgo.com",
+          "action": "View"
+        }
+      ]
+    },
+    {
+      "name": "Email",
+      "services": [
+        {
+          "name":"Gmail",
+          "hostname": "gmail.com",
+          "action" : "View"
+        },
+        {
+          "name":"Hotmail",
+          "hostname": "hotmail.com",
+          "action" : "View"
+        }
+      ]
+    }
+  ]
+}

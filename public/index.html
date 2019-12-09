@@ -1,0 +1,73 @@
+<html>
+
+<head>
+  <title>UpKeep</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/assembly-framework@latest/dist/css/assembly.min.css">
+  <link rel="stylesheet" href="/stylesheets/fa-free.min.css">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <link rel="stylesheet" href="/js/vue.min.js">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+        <img src="/img/StarkIndustries.svg" class="col logo">
+    </div>
+    <div class="row">
+      <div class="col card">
+        <h1><span class="indicator large error"></span>1 Active Incident <button class="right align large primary">View Details</button></h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col card">
+        <h2>System Status</h2>
+
+        <div class="accordion-group" id="main-group">
+
+        </div> <!-- End Accordion Group -->
+      </div>
+    </div>
+  </div>
+<script>
+  $( document ).ready(function() {
+    $.getJSON( "/data/status.json", function( data ) {
+      var output = "";
+      for(let i = 0; i < data.categories.length; i++) {
+        var categoryindicator = "success";
+        for(let j = 0; j < data.categories[i].services.length; j++) {
+          if(data.categories[i].services[j].status.match("down")) {
+            categoryindicator = "error";
+          }
+        }
+        output +=
+          '<div class="accordion expanded">\n' +
+            '<div class="accordion--header">\n' +
+              '<span class="accordion--indicator ' + categoryindicator + '"></span>\n' +
+              '<span class="accordion--control"></span>\n' +
+              '<h3>' + data.categories[i].name + '</h3>\n' +
+            '</div>\n' +
+            '<div class="accordion--content">\n';
+        for(let j = 0; j < data.categories[i].services.length; j++) {
+          var indicatorstatus = "success";
+          if(data.categories[i].services[j].status === "down") {
+            indicatorstatus = "error";
+          }
+          output +=
+              '<div class="accordion--content-list-item">\n' +
+                '<span class="indicator small ' + indicatorstatus + '"></span>\n' +
+                '<h4>' + data.categories[i].services[j].name + '</h4>\n' +
+              '</div>\n';
+        }
+        output += '</div>\n' +
+                '</div>';
+      }
+      $("#main-group").html(output);
+    });
+  });
+</script>
+</body>
+
+</html>

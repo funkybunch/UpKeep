@@ -1,0 +1,213 @@
+/*
+  UpKeep Core - DO NOT MODIFY
+  Any changes here will be overwritten on update.
+  To change variables or add your own classes, use the
+  `_theme.sass`
+
+@import 'theme'
+
+$font-default:          $theme-font-default
+$font-bold:             $theme-font-bold
+
+$link-color:            $theme-link-color
+$container-width:       $theme-container-width
+
+$grid-base:             $theme-grid-base
+$padding:               $grid-base*2
+$margin:                $grid-base*2
+
+$indicator-large:       20px
+$indicator-small:       16px
+
+$color-white:           #ffffff
+$color-light-gray:      #f1f1f1
+$color-gray:            #CFD8DC
+$color-primary:         #01579B
+$color-status-success:  #00C853
+$color-status-error:    #D50000
+$color-status-unknown:  $color-gray
+
+// Breakpoints
+$size-mobile:       480px
+$size-tablet-small: 768px
+$size-tablet-large: 991px
+$size-desktop:      1199px
+
+*
+  font: $font-default
+
+body, html
+  background-color: $theme-background-color
+  color:            $theme-font-color
+  margin: 0
+  padding: 0
+
+a
+  color: $link-color
+
+h1
+  font:       $theme-font-bold
+  font-size:  32px
+  margin:     0
+
+h2
+  font:           $theme-font-bold
+  font-size:      28px
+  margin:         0
+  margin-bottom:  $grid-base*2
+
+.logo
+  width:      60%
+  max-width:  600px
+
+.left
+  float: left
+
+.right
+  float: right
+
+.container
+  max-width:  $theme-container-width
+  width:      80%
+  margin:     auto
+
+.card
+  box-sizing:       border-box
+  padding:          $theme-padding
+  border-radius:    $theme-border-radius
+  background-color: $theme-card-color
+  width:            100% !important
+  margin:           8px 0 8px 0
+
+.accordion-group
+  border:           2px solid $color-gray
+  border-radius:    $theme-border-radius
+
+.accordion--control
+  width: 22px
+  height: 22px
+  padding: 4px 4px
+  margin:     22px 8px
+  display: inline-block
+  box-sizing: border-box
+  position: absolute
+  transform: rotate(-90deg)
+  &:before
+    font-family: "Font Awesome 5 Free"
+    display: inline-block
+    margin-top: -6px
+    font-weight: 900
+    content: "\f0d7"
+    font-size: 24px
+    overflow: hidden
+
+.accordion
+
+  &:first-child
+    .accordion--indicator
+      border-top-left-radius:     ($theme-border-radius - 2)
+
+  &:last-child
+    border-bottom:  none
+    .accordion--content
+      .accordion--content-list-item:last-child
+        border-bottom:  none
+    &:not(.expanded)
+      .accordion--indicator
+        border-bottom-left-radius:  ($theme-border-radius - 2)
+
+  .accordion--header
+    height:           64px
+    width:            100%
+    border-bottom:    2px solid $color-gray
+    h3
+      font:       $theme-font-bold
+      font-size:  24px
+      display:    inline-block
+      position:   absolute
+      margin:     16px 40px
+
+  &.expanded .accordion--control
+    transform: rotate(0deg)
+
+.accordion--indicator
+  display:          inline-block
+  height:           100%
+  width:            18px
+  &.success
+    background-color: $color-status-success
+  &.error
+    background-color: $color-status-error
+
+.accordion--content-list-item
+  border-bottom:    2px solid $color-gray
+  box-sizing: border-box
+  padding: $padding $padding*2
+  h4
+    font: $theme-font-default
+    display: inline-block
+    margin: 0
+
+.indicator
+  background-color: $color-status-unknown
+  border-radius:    $indicator-large
+  display:          inline-block
+  margin-right:     $margin
+  &.large
+    width:  $indicator-large
+    height: $indicator-large
+
+  &.small
+    width:  $indicator-small
+    height: $indicator-small
+
+  &.success
+    background-color: $color-status-success
+
+  &.error
+    background-color: $color-status-error
+
+button
+  cursor:           pointer
+  margin:           0 auto
+  display:          block
+  background-color: $color-white
+  border-radius:    $theme-border-radius/2
+  box-sizing:       border-box
+  padding:          $theme-grid-base/2 $theme-grid-base*2
+  font-size:        16px
+  font-weight:      $theme-font-weight-bold
+  line-height:      normal
+  border:           2px solid $color-gray
+
+  &:hover
+    background-color:   $color-light-gray
+
+  &.primary
+    background-color:   $color-primary
+    color:              $color-white
+    border:             none
+    &:hover
+      background-color: darken($color-primary, 10%)
+
+  &.large
+    padding:          $theme-grid-base $theme-grid-base*3
+
+  &.align
+    margin-top: 6px
+
+@media all and (max-width:  $size-tablet-small)
+  .container
+    width: 90%
+
+
+@media all and (max-width:  $size-mobile)
+  .container
+    width: 96%
+
+  .logo
+    width: 100%
+
+  button
+    display:  block
+    width:    100%

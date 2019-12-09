@@ -1,0 +1,7 @@
+.idea
+*.iml
+logs
+config/config.json
+.env
+node_modules
+public/data/status.json
