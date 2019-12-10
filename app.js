@@ -10,7 +10,6 @@ const ping = require('ping');
 const shell = require('shelljs');
 const writeJSON = require('write-json-file');
 const winston = require('winston');
-const signal = true;
 const appLog = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
@@ -25,7 +24,8 @@ const appLog = winston.createLogger({
   ]
 });
 
-// Hosts to monitor
+// Global vars
+const signal = false;
 let rawconfig = fs.readFileSync('config/config.json');
 let resources = JSON.parse(rawconfig);
 let firstLoad = true;
@@ -37,17 +37,15 @@ let downServices = 0;
 let categories = [];
 let totalKey = 0;
 
-//
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-//
+/**
+ *  Console log everything unless running in Production mode.
+ */
 if (process.env.NODE_ENV !== 'production') {
   appLog.add(new winston.transports.Console({
     format: winston.format.simple()
   }));
 }
 
-// appLog.log('info', 'test message %s', 'my string');
 function sendToLog(level, message) {
   appLog.log(level, message);
 }
@@ -179,7 +177,7 @@ cron.schedule('* * * * *', () => {
   setTimeout(checkAll, 45000);
 });
 
-cron.schedule('* * * * *', () => {
+cron.schedule('*/5 * * * *', () => {
   loadConfig();
 });
 
