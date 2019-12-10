@@ -30,12 +30,7 @@ Configuration is done via a simple JSON file (example included).  This file is l
 ## Signal Integration
 If you use [Signal](https://signal.org/), you can have UpKeep message you via the Signal App when something goes wrong.  UpKeep can interface with [Signal-CLI](https://github.com/AsamK/signal-cli) out of the box.
 
-If you need help, [check out the wiki](https://github.com/funkybunch/UpKeep/wiki/Signal-Integration-Help).
-
-Once you have [Signal-CLI](https://github.com/AsamK/signal-cli) up and running system-wide, enabling the feature in UpKeep is quite simple.
-1. Make sure you've renamed `.env-sample` to `.env`
-2. In `.env` set the [Signal](https://signal.org) account phone numbers you wish to send from, and receive to.  Don't forget to include the country code (example: `+15555555555`)
-3. Change the variable `signal` at the top of `app.js` from `let signal = false;` to `let signal = true;`
+Full details on how to set this up [on the wiki](https://github.com/funkybunch/UpKeep/wiki/Signal-Integration-Help).
 
 ## Logging
 This application uses [Winston](https://github.com/winstonjs/winston) for logging.  The log files are stored in {App Directory}/logs/ and are in JSON format.  You can configure logging with Winston in the `app.js` file to suit your needs.
