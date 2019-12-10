@@ -28,6 +28,7 @@ const appLog = winston.createLogger({
 // Hosts to monitor
 let rawconfig = fs.readFileSync('config/config.json');
 let resources = JSON.parse(rawconfig);
+let firstLoad = true;
 let servicesList = [];
 let resourcesList = [];
 let publicStatuses = {};
@@ -35,16 +36,6 @@ let downServices = 0;
 
 let categories = [];
 let totalKey = 0;
-
-for(let i = 0; i < resources.categories.length; i++) {
-  categories[i] = resources.categories[i].name;
-
-  for(let j = 0; j < resources.categories[i].services.length; j++) {
-    servicesList[j] = resources.categories[i].services;
-    resourcesList[totalKey] = resources.categories[i].services[j].hostname;
-    totalKey++;
-  }
-}
 
 //
 // If we're not in production then log to the `console` with the format:
@@ -74,6 +65,35 @@ function sendViaSignalCLI(recipient, message) {
   }
 }
 
+function loadConfig() {
+  newconfig = fs.readFileSync('config/config.json');
+
+  if(firstLoad || Buffer.compare(rawconfig, newconfig) !== 0) {
+    servicesList = [];
+    resourcesList = [];
+    publicStatuses = {};
+    downServices = 0;
+    categories = [];
+    totalKey = 0;
+
+    rawconfig = newconfig;
+    resources = JSON.parse(newconfig);
+    for(let i = 0; i < resources.categories.length; i++) {
+      categories[i] = resources.categories[i].name;
+
+      for(let j = 0; j < resources.categories[i].services.length; j++) {
+        servicesList[j] = resources.categories[i].services;
+        resourcesList[totalKey] = resources.categories[i].services[j].hostname;
+        totalKey++;
+      }
+    }
+    firstLoad = false;
+    sendToLog("info", "New configuration loaded.");
+  } else {
+    sendToLog("info", "No change to configuration file.");
+  }
+}
+
 function checkResources(checklist, attempt) {
   checklist.forEach(function(host){
     ping.sys.probe(host, function(isAlive){
@@ -87,7 +107,7 @@ function checkResources(checklist, attempt) {
         sendToLog("info", "Connection attempt " + (attempt + 1) + " to " + host + " failed.  Retrying...");
         downServices++;
         // Only change status and send log or notification if service was last detected as "up"
-        if(hostStatus === "up") {
+        if(hostStatus === "up" || hostStatus === undefined) {
           sendNotification("warn", "Service " + host + " is down.");
         }
       } else if(isAlive) {
@@ -149,6 +169,7 @@ function checkAll() {
   checkResources(resourcesList, 0);
 }
 
+loadConfig();
 checkAll();
 setTimeout(checkAll, 5000);
 cron.schedule('* * * * *', () => {
@@ -156,6 +177,10 @@ cron.schedule('* * * * *', () => {
   setTimeout(checkAll, 15000);
   setTimeout(checkAll, 30000);
   setTimeout(checkAll, 45000);
+});
+
+cron.schedule('* * * * *', () => {
+  loadConfig();
 });
 
 let indexRouter = require('./routes/index');

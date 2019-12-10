@@ -3,9 +3,9 @@
   Any changes here will be overwritten on update.
   To change variables or add your own classes, use the
   `_theme.sass` */
-@import url("https://use.typekit.net/eih6xyi.css");
+@import url("https://fonts.googleapis.com/css?family=Montserrat:500,700&display=swap");
 * {
-  font: 400 normal 18px/1.5em proxima-nova, sans-serif; }
+  font: 500 normal 18px/1.5em "Montserrat", sans-serif; }
 
 body, html {
   background-color: #0C2430;
@@ -17,12 +17,12 @@ a {
   color: #01579B; }
 
 h1 {
-  font: 700 normal 18px/1.5em proxima-nova, sans-serif;
+  font: 700 normal 18px/1.5em "Montserrat", sans-serif;
   font-size: 32px;
   margin: 0; }
 
 h2 {
-  font: 700 normal 18px/1.5em proxima-nova, sans-serif;
+  font: 700 normal 18px/1.5em "Montserrat", sans-serif;
   font-size: 28px;
   margin: 0;
   margin-bottom: 16px; }
@@ -87,7 +87,7 @@ h2 {
   width: 100%;
   border-bottom: 2px solid #CFD8DC; }
   .accordion .accordion--header h3 {
-    font: 700 normal 18px/1.5em proxima-nova, sans-serif;
+    font: 700 normal 18px/1.5em "Montserrat", sans-serif;
     font-size: 24px;
     display: inline-block;
     position: absolute;
@@ -110,7 +110,7 @@ h2 {
   box-sizing: border-box;
   padding: 16px 32px; }
   .accordion--content-list-item h4 {
-    font: 400 normal 18px/1.5em proxima-nova, sans-serif;
+    font: 500 normal 18px/1.5em "Montserrat", sans-serif;
     display: inline-block;
     margin: 0; }
 
