@@ -38,7 +38,7 @@ let categories = [];
 let totalKey = 0;
 
 /**
- *  Console log everything unless running in Production mode.
+ * Console log everything unless running in Production mode.
  */
 if (process.env.NODE_ENV !== 'production') {
   appLog.add(new winston.transports.Console({
@@ -46,10 +46,36 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
+/**
+ * @void function sendToLog()
+ *
+ * Sends a message to the program log, given a level and message.  In the default
+ * configuration, message with the level "error" are routed to `logs/error.log` and
+ * all other messages are routed to `logs/events.log` only.
+ *
+ * @var String level   - Possible values: "error", "warn", "info", "verbose", or "debug"
+ * @var String message - The text to save to the log
+ */
 function sendToLog(level, message) {
   appLog.log(level, message);
 }
 
+/**
+ * @void function sendNotification()
+ *
+ * Sends a notification via Signal-CLI if it is installed AND enabled.  This also
+ * sends the message to the logs automatically which is why level is also required.
+ * For help enabling this Signal-CLI integration, see
+ * https://github.com/funkybunch/UpKeep/wiki/Signal-Integration-Help.
+ *
+ * By default, this function will use data stored in the `.env` file to determine the
+ * recipient, but this can be modified to be as complex and robust as you need.
+ *
+ * Interfacing with the Signal-CLI application occurs in the `sendViaSignalCLI()` function.
+ *
+ * @var String level   - Possible values: "error", "warn", "info", "verbose", or "debug"
+ * @var String message - The text to send as a notification.
+ */
 function sendNotification(level, message) {
   appLog.log(level, message);
   if(signal) {
@@ -57,12 +83,31 @@ function sendNotification(level, message) {
   }
 }
 
+/**
+ * @void function sendViaSignalCLI()
+ *
+ * Sends a message via SignalCLI.  Signal-CLI must be installed system-wide, otherwise
+ * you will receive an error.
+ *
+ * @var String recipient - The phone number of the Signal user to send the message to.  Make sure to include "+[country code]"
+ * @var String message   - The text to send to the recipient
+ */
 function sendViaSignalCLI(recipient, message) {
   if (shell.exec('signal-cli -u ' + process.env.SIGNAL_SENDER + ' send -m "' + message + '" ' + recipient + '').code !== 0) {
     sendToLog("error", "Failed to send notification via Signal.  Check to make sure Signal-CLI is installed and you are using the correct username.");
   }
 }
 
+/**
+ * @void function loadConfig()
+ *
+ * Checks the JSON configuration file (config/config.json) for changes and loads
+ * the configuration file if changes are detected.  The file will be loaded automatically
+ * when the program starts, and then periodically according to the CRON schedule.
+ * Default reload interval is 5 minutes.
+ *
+ * This function has no inputs as it uses and modifies data stored in global variables.
+ */
 function loadConfig() {
   newconfig = fs.readFileSync('config/config.json');
 
@@ -92,6 +137,23 @@ function loadConfig() {
   }
 }
 
+/**
+ * @void function checkResources()
+ *
+ * Pings all resources in the configuration file.  Up to 3 attempts per resource will
+ * be made (this function is recursive with a maximum depth of 3).  If the 3rd ping
+ * attempt fails, the resource status will be set to `down`.  If the resource continues
+ * to fail, no change is made to the resource's status.  The resource's status will
+ * automatically be changed back to `up` when a subsequent successful ping is made.
+ *
+ * The `sendNotification()` function is called when the status changes either way.
+ *
+ * Upon checking all resources, this function calls `publishStatuses()` to publish
+ * the results to a web-accessible location.
+ *
+ * @var String checklist - An array of hostnames to check.
+ * @var int attempt      - The attempt number (between 1 & 3) for the resource being actively checked.
+ */
 function checkResources(checklist, attempt) {
   checklist.forEach(function(host){
     ping.sys.probe(host, function(isAlive){
@@ -125,6 +187,14 @@ function checkResources(checklist, attempt) {
   publishStatuses();
 }
 
+/**
+ * function getStatus()
+ *
+ * Checks the status for a given hostname.
+ *
+ * @var String host - A hostname to check the status of
+ * @returns String  - Status of the given resource (either "up" or "down")
+ */
 function getStatus(host) {
     for(let i = 0; i < resources.categories.length; i++) {
         for(let j = 0; j < resources.categories[i].services.length; j++) {
@@ -135,6 +205,18 @@ function getStatus(host) {
     }
 }
 
+/**
+ * @void function pushStatus()
+ *
+ * Appends a `status` attribute to the services object given a
+ * `hostname` and a `status` (either "up" or "down").  The function
+ * will find the correct place to update the status based on the hostname.
+ * Because this search is done by hostname, it is important that there are
+ * not duplicate hostnames in the `config/config.json` file.
+ *
+ * @var String host    - A hostname
+ * @var String status  - The status of the hostname (either "up" or "down")
+ */
 function pushStatus(host, status) {
   for(let i = 0; i < resources.categories.length; i++) {
     for(let j = 0; j < resources.categories[i].services.length; j++) {
@@ -145,6 +227,14 @@ function pushStatus(host, status) {
   }
 }
 
+/**
+ * @void function publishStatuses()
+ *
+ * Generates and updates the web-accessible JSON file containing the status
+ * for all resources.  Once generated, this file is located in `public/data/status.json`.
+ *
+ * This function uses and modifies data from global variables and has no inputs.
+ */
 function publishStatuses() {
   publicStatuses.categories = [];
   for(let i = 0; i < resources.categories.length; i++) {
@@ -163,6 +253,13 @@ function publishStatuses() {
   })();
 }
 
+/**
+ * @void function checkAll()
+ *
+ * Calls `checkResources()` and instantiates the @args for the loaded configuration.
+ *
+ * This function uses and modifies data from global variables and has no inputs.
+ */
 function checkAll() {
   checkResources(resourcesList, 0);
 }
