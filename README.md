@@ -1,7 +1,7 @@
 # UpKeep
 [![Build Status](https://travis-ci.com/funkybunch/UpKeep.svg?branch=master)](https://travis-ci.com/funkybunch/UpKeep)
 
-Upkeep is a monitoring agent I built for my homelab, but it could be used to monitor just about anything with an IP address or hostname.
+Upkeep is a monitoring agent I built for my homelab, but it could be used to monitor just about anything with an `IP address` or `hostname`.
 
 ## Installation
 UpKeep is still in `beta` so no releases are available at this time.  If you'd still like to take it for a spin:
