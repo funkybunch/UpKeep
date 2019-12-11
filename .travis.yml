@@ -6,9 +6,8 @@ node_js:
 install:
   - npm install
 
-after_success:
+script:
   - mv config/config-sample.json config/config.json
   - mv .env-sample .env
-
-script:
   - npm run cover
+  
