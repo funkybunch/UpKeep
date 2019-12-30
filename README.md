@@ -5,7 +5,7 @@ Upkeep is a monitoring agent I built for my homelab, but it could be used to mon
 
 ## Installation
 UpKeep is still in `beta` so no releases are available at this time.  If you'd still like to take it for a spin:
-1. Make sure you have [NodeJS](https://nodejs.org/) installed
+1. Make sure you have [Node.js](https://nodejs.org/) installed
 2. Set your `working directory` to where you wish to install UpKeep
 3. Run `npm install https://github.com/funkybunch/UpKeep.git`
 4. Change your `working directory` to UpKeep
