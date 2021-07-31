@@ -4,7 +4,7 @@
       <div class="row">
         <img src="logo.svg" class="col logo">
       </div>
-      <div class="row" v-if="incidents > 0" id="#alert">
+      <div class="row" v-if="incidents > 0" id="alert">
         <div class="col card">
           <h1><span class="indicator large error"></span>{{incidents}} Active Incident{{(incidents > 1)? 's':''}} <button class="right align large primary">View Details</button></h1>
         </div>
