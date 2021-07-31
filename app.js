@@ -1,5 +1,5 @@
 const express = require('express');
-const path = require('path');
+const path = require('path')
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const sassMiddleware = require('node-sass-middleware');
@@ -10,6 +10,7 @@ const ping = require('ping');
 const shell = require('shelljs');
 const writeJSON = require('write-json-file');
 const winston = require('winston');
+const args = process.argv.slice(2);
 const appLog = winston.createLogger({
   level: 'info',
   format: winston.format.json(),
@@ -79,7 +80,7 @@ function sendToLog(level, message) {
 function sendNotification(level, message) {
   appLog.log(level, message);
   if(signal) {
-    sendViaSignalCLI(process.env.SIGNAL_RECIPIENT, message)
+    // sendViaSignalCLI(process.env.SIGNAL_RECIPIENT, message)
   }
 }
 
@@ -92,11 +93,11 @@ function sendNotification(level, message) {
  * @var String recipient - The phone number of the Signal user to send the message to.  Make sure to include "+[country code]"
  * @var String message   - The text to send to the recipient
  */
-function sendViaSignalCLI(recipient, message) {
-  if (shell.exec('signal-cli -u ' + process.env.SIGNAL_SENDER + ' send -m "' + message + '" ' + recipient + '').code !== 0) {
-    sendToLog("error", "Failed to send notification via Signal.  Check to make sure Signal-CLI is installed and you are using the correct username.");
-  }
-}
+// function sendViaSignalCLI(recipient, message) {
+//   if (shell.exec('signal-cli -u ' + process.env.SIGNAL_SENDER + ' send -m "' + message + '" ' + recipient + '').code !== 0) {
+//     sendToLog("error", "Failed to send notification via Signal.  Check to make sure Signal-CLI is installed and you are using the correct username.");
+//   }
+// }
 
 /**
  * @void function loadConfig()
@@ -109,7 +110,7 @@ function sendViaSignalCLI(recipient, message) {
  * This function has no inputs as it uses and modifies data stored in global variables.
  */
 function loadConfig() {
-  newconfig = fs.readFileSync('config/config.json');
+  let newconfig = fs.readFileSync('config/config.json');
 
   if(firstLoad || Buffer.compare(rawconfig, newconfig) !== 0) {
     servicesList = [];
@@ -154,30 +155,34 @@ function loadConfig() {
  * @var String checklist - An array of hostnames to check.
  * @var int attempt      - The attempt number (between 1 & 3) for the resource being actively checked.
  */
-function checkResources(checklist, attempt) {
+async function checkResources(checklist, attempt) {
   checklist.forEach(function(host){
-    ping.sys.probe(host, function(isAlive){
-      let hostStatus = getStatus(host);
-      // Make 3 attempts before logging or sending alert
-      if(!isAlive && attempt < 2) {
-        checkResources(JSON.parse('[ "' + host + '" ]'), attempt + 1);
-        sendToLog("info", "Connection attempt " + (attempt + 1) + " to " + host + " failed.  Retrying...");
-      } else if(!isAlive && attempt === 2) {
-        pushStatus(host, "down");
-        sendToLog("info", "Connection attempt " + (attempt + 1) + " to " + host + " failed.  Retrying...");
-        downServices++;
-        // Only change status and send log or notification if service was last detected as "up"
-        if(hostStatus === "up" || hostStatus === undefined) {
-          sendNotification("warn", "Service " + host + " is down.");
+    try {
+      ping.sys.probe(host, function(isAlive){
+        let hostStatus = getStatus(host);
+        // Make 3 attempts before logging or sending alert
+        if(!isAlive && attempt < 2) {
+          checkResources(JSON.parse('[ "' + host + '" ]'), attempt + 1);
+          sendToLog("info", "Connection attempt " + (attempt + 1) + " to " + host + " failed.  Retrying...");
+        } else if(!isAlive && attempt === 2) {
+          pushStatus(host, "down");
+          sendToLog("info", "Connection attempt " + (attempt + 1) + " to " + host + " failed.  Retrying...");
+          downServices++;
+          // Only change status and send log or notification if service was last detected as "up"
+          if(hostStatus === "up" || hostStatus === undefined) {
+            sendNotification("warn", "Service " + host + " is down.");
+          }
+        } else if(isAlive) {
+          pushStatus(host, "up");
+          // Only change status and send log or notification if service was last detected as "down"
+          if(hostStatus === "down") {
+            sendNotification("warn", "Service " + host + " is back up.");
+          }
         }
-      } else if(isAlive) {
-        pushStatus(host, "up");
-        // Only change status and send log or notification if service was last detected as "down"
-        if(hostStatus === "down") {
-          sendNotification("warn", "Service " + host + " is back up.");
-        }
-      }
-    });
+      });
+    } catch(e) {
+      console.log("Error checking host:", host);
+    }
   });
 
   if(downServices === 0 && attempt === 0) {
@@ -231,7 +236,7 @@ function pushStatus(host, status) {
  * @void function publishStatuses()
  *
  * Generates and updates the web-accessible JSON file containing the status
- * for all resources.  Once generated, this file is located in `public/data/status.json`.
+ * for all resources.  Once generated, this file is located in `dist/data/status.json`.
  *
  * This function uses and modifies data from global variables and has no inputs.
  */
@@ -245,57 +250,73 @@ function publishStatuses() {
       publicStatuses.categories[i].services[j] = {};
       publicStatuses.categories[i].services[j].name = resources.categories[i].services[j].name;
       publicStatuses.categories[i].services[j].status = resources.categories[i].services[j].status;
+      publicStatuses.categories[i].services[j].url = resources.categories[i].services[j].url;
       publicStatuses.categories[i].services[j].action = resources.categories[i].services[j].action;
     }
   }
   (async () => {
-    await writeJSON('./public/data/status.json', publicStatuses);
+    await writeJSON('./dist/data/status.json', publicStatuses);
   })();
 }
 
-/**
- * @void function checkAll()
- *
- * Calls `checkResources()` and instantiates the @args for the loaded configuration.
- *
- * This function uses and modifies data from global variables and has no inputs.
- */
-function checkAll() {
-  checkResources(resourcesList, 0);
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 loadConfig();
-checkAll();
-setTimeout(checkAll, 5000);
-cron.schedule('* * * * *', () => {
-  checkAll();
-  setTimeout(checkAll, 15000);
-  setTimeout(checkAll, 30000);
-  setTimeout(checkAll, 45000);
-});
+checkResources(resourcesList, 0);
 
 cron.schedule('*/5 * * * *', () => {
   loadConfig();
 });
 
+cron.schedule('* * * * *', () => {
+  checkResources(resourcesList, 0);
+  setTimeout(function() {
+    try {
+      checkResources(resourcesList, 0)
+    } catch(e) {
+      console.log("Resource Check failed");
+    }
+  }, 15000);
+  setTimeout(function() {
+    try {
+      checkResources(resourcesList, 0)
+    } catch(e) {
+      console.log("Resource Check failed");
+    }
+  }, 30000);
+  setTimeout(function() {
+    try {
+      checkResources(resourcesList, 0)
+    } catch(e) {
+      console.log("Resource Check failed");
+    }
+  }, 45000);
+});
+
 let indexRouter = require('./routes/index');
 let usersRouter = require('./routes/users');
 
-let app = express();
+let appServer;
+if(args.includes("serve")) {
+  console.log("Running as web server");
+  appServer = express();
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(sassMiddleware({
-  src: path.join(__dirname, 'public'),
-  dest: path.join(__dirname, 'public'),
-  indentedSyntax: true, // true = .sass and false = .scss
-  sourceMap: true
-}));
-app.use(express.static(path.join(__dirname, 'public')));
+  appServer.use(logger('dev'));
+  appServer.use(express.json());
+  appServer.use(express.urlencoded({ extended: false }));
+  appServer.use(cookieParser());
+  appServer.use(sassMiddleware({
+    src: path.join(__dirname, 'dist'),
+    dest: path.join(__dirname, 'dist'),
+    indentedSyntax: true, // true = .sass and false = .scss
+    sourceMap: true
+  }));
+  appServer.use(express.static(path.join(__dirname, 'dist')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+// appServer.use('/', indexRouter);
+// appServer.use('/users', usersRouter);
 
-module.exports = app;
+}
+module.exports = appServer;

@@ -2,13 +2,25 @@
   "name": "upkeep",
   "version": "0.2.1",
   "private": true,
+  "main": "electron.js",
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "npm run build:ui &&  npm run start:server",
+    "start:dev": "npm run build:ui:dev && npm run start:server",
+    "start:local": "npm run build:ui && node launcher.js",
+    "start:server": "node ./bin/www serve",
+    "start:watcher": "node ./app.js",
+    "build:ui": "NODE_ENV=production vue build ./src/app.vue",
+    "build:ui:dev": "NODE_ENV=development vue build ./src/app.vue ",
     "test": "mocha --reporter spec",
     "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.35",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/vue-fontawesome": "^2.0.2",
+    "axios": "^0.21.1",
     "cookie-parser": "~1.4.4",
+    "css-loader": "^6.2.0",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
@@ -17,12 +29,14 @@
     "node-html-parser": "^1.1.16",
     "node-sass-middleware": "^0.11.0",
     "ping": "^0.2.2",
+    "sass-loader": "^10.0.0",
     "shelljs": "^0.8.3",
     "winston": "^3.2.1",
     "write-json-file": "^4.2.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
+    "electron": "^11.1.1",
     "istanbul": "^0.4.5",
     "mocha": "^6.2.2"
   }
