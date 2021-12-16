@@ -241,6 +241,12 @@ function pushStatus(host, status) {
  * This function uses and modifies data from global variables and has no inputs.
  */
 function publishStatuses() {
+  publicStatuses.overview = {
+    system: "Normal",
+    down_services: [],
+    down_services_string: "",
+    down_services_count: 0
+  }
   publicStatuses.categories = [];
   for(let i = 0; i < resources.categories.length; i++) {
     publicStatuses.categories[i] = {};
@@ -252,8 +258,21 @@ function publishStatuses() {
       publicStatuses.categories[i].services[j].status = resources.categories[i].services[j].status;
       publicStatuses.categories[i].services[j].url = resources.categories[i].services[j].url;
       publicStatuses.categories[i].services[j].action = resources.categories[i].services[j].action;
+      if(resources.categories[i].services[j].status === 'down') {
+        publicStatuses.overview.down_services_count++;
+        publicStatuses.overview.system = (publicStatuses.overview.down_services_count === 1) ? "Outage" : "Multiple Outages";
+        publicStatuses.overview.down_services.push(resources.categories[i].services[j].name);
+        if(publicStatuses.overview.down_services.length > 1) {
+          publicStatuses.overview.down_services_string += ", " + resources.categories[i].services[j].name;
+        } else {
+          publicStatuses.overview.down_services_string += resources.categories[i].services[j].name;
+        }
+      }
     }
   }
+
+  publicStatuses.overview.down_services_string.trim();
+
   (async () => {
     await writeJSON('./dist/data/status.json', publicStatuses);
   })();

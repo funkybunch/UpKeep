@@ -22,6 +22,7 @@
         </div>
         <div class="col card" id="status-detail">
           <h2>System Status</h2>
+          <h3>{{ systemStatus }}</h3>
           <div class="accordion-group" id="main-group">
             <div :class="(item.expanded === true)? 'accordion expanded':'accordion'"
                  v-for="(item, index) in status.categories"
@@ -73,6 +74,7 @@ export default {
   data() {
     return {
       incidents: 0,
+      systemStatus: 0,
       status: []
     }
   },
@@ -94,7 +96,9 @@ export default {
               }
             }
             self.status = temp;
-            self.countIncidents();
+            self.incidents = response.data.overview.down_services_count;
+            self.systemStatus = response.data.overview.system;
+            self.styleCategories();
           })
           .catch(function(err) {
             console.log(err);
@@ -116,13 +120,11 @@ export default {
         console.log("click create");
       }
     },
-    countIncidents() {
-      let total = 0;
+    styleCategories() {
       for(let i = 0; i < this.status.categories.length; i++) {
         let categoryTotal = 0;
         for(let j = 0; j < this.status.categories[i].services.length; j++) {
           if(this.status.categories[i].services[j].status === "down") {
-            total++;
             categoryTotal++;
           }
         }
@@ -135,7 +137,6 @@ export default {
           Vue.set(this.status.categories, i, temp);
         }
       }
-      this.incidents = total;
     }
   },
   created() {
