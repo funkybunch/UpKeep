@@ -12,7 +12,8 @@
     "build:ui": "NODE_ENV=production vue build ./src/app.vue",
     "build:ui:dev": "NODE_ENV=development vue build ./src/app.vue ",
     "test": "mocha --reporter spec",
-    "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*"
+    "cover": "node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha -- -R spec test/*",
+    "tar": "tar --exclude={\"node_modules\",\"dist\",\"logs\",\".git\"} -czvf upkeep.tar.gz ./"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.35",
