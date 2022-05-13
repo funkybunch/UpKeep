@@ -2,7 +2,6 @@ const express = require('express');
 const path = require('path')
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-const sassMiddleware = require('node-sass-middleware');
 const env = require('dotenv').config();
 const fs = require('fs');
 const cron = require('node-cron');
