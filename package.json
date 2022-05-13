@@ -29,7 +29,6 @@
     "morgan": "^1.10.0",
     "node-cron": "^2.0.3",
     "node-html-parser": "^1.4.9",
-    "node-sass-middleware": "^1.0.1",
     "ping": "^0.2.3",
     "sass": "^1.51.0",
     "sass-loader": "^10.2.1",

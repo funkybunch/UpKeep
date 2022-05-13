@@ -326,12 +326,6 @@ if(args.includes("serve")) {
   appServer.use(express.json());
   appServer.use(express.urlencoded({ extended: false }));
   appServer.use(cookieParser());
-  appServer.use(sassMiddleware({
-    src: path.join(__dirname, 'dist'),
-    dest: path.join(__dirname, 'dist'),
-    indentedSyntax: true, // true = .sass and false = .scss
-    sourceMap: true
-  }));
   appServer.use(express.static(path.join(__dirname, 'dist')));
 
 // appServer.use('/', indexRouter);
