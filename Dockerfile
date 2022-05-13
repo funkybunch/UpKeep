@@ -13,10 +13,11 @@ COPY package*.json ./
 # RUN npm install
 # If you are building your code for production
 RUN npm ci --only=production
-RUN npm run build:ui
 
 # Bundle app source
 COPY . .
+
+RUN npm run build:ui
 
 EXPOSE 3010
 CMD [ "npm", "start:server" ]
