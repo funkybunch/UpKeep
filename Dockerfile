@@ -20,4 +20,4 @@ COPY . .
 RUN npm run build:ui
 
 EXPOSE 3010
-CMD [ "npm", "start:server" ]
+CMD [ "npm", "run", "start:server" ]
